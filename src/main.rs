@@ -8,15 +8,16 @@ use std::path::Path;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    if args.len() != 3 {
-        eprintln!("Verwendung: excel_reader <Pfad zur Excel-Datei> <Spaltenname>");
+    if args.len() != 4 {
+        eprintln!("Verwendung: excel_import <Pfad zur Excel-Datei> <Sheet-Name> <Spaltenname>");
         return;
     }
 
     let path = &args[1];
     let path_as_path = Path::new(path);
-    let sheet_name = "Sheet1";
-    let column_name = &args[2];
+    let output_file_path = "output.csv";
+    let sheet_name = &args[2];
+    let column_name = &args[3];
 
     let unique_values_result = match path_as_path.extension().and_then(std::ffi::OsStr::to_str) {
         Some("ods") => read_unique_values_ods(path, sheet_name, column_name),
@@ -25,9 +26,6 @@ fn main() {
 
     match unique_values_result {
         Ok(unique_values) => {
-            // Erstelle die Ausgabedatei
-            let output_file_path = "output.csv";
-
             // Speichere das Ergebnis in der Ausgabedatei
             if let Err(e) = write_to_csv_file(unique_values, column_name, output_file_path) {
                 eprintln!("Fehler beim Schreiben der CSV-Datei: {}", e);
